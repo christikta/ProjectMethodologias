@@ -17,7 +17,7 @@ public class Main extends Application {
         Parent root = loader.load();
 
         // Set the scene
-        primaryStage.setTitle("JavaFX App");
+        primaryStage.setTitle("Travel Journal");
         primaryStage.setScene(new Scene(root, 600, 400)); // Set size to match your FXML
         primaryStage.show();
     }
