@@ -26,7 +26,7 @@ public class Main extends Application {
         ImageView imageView = (ImageView) loader.getNamespace().get("imageView");
 
         // Set the scene
-        primaryStage.setTitle("Travel Journal");
+        primaryStage.setTitle("Smart Travel Journal");
         primaryStage.setScene(new Scene(root, 600, 400)); // Set size to match your FXML
         primaryStage.show();
 
