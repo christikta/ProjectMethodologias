@@ -30,6 +30,8 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, 600, 400)); // Set size to match your FXML
         primaryStage.show();
 
+        //otkkkkkkkkk
+
         // Add action to the upload button
         uploadButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
