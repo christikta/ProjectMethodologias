@@ -1,11 +1,14 @@
 package com;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -15,6 +18,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.cert.PolicyNode;
 
 public class MainController {
 
@@ -108,6 +113,22 @@ public class MainController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+
+
+
+    public void close_app(javafx.scene.input.MouseEvent mouseEvent) {
+        System.exit(0);
+    }
+
+    public void open_registration (MouseEvent mouseEvent, PolicyNode content_area) throws IOException {
+        Parent fxml = FXMLLoader.load(getClass().getResource("RegistrationUi.fxml"));
+        content_area.getChildren().remove();
+        content_area.getChildren().equals(fxml);
+    }
+
+    public void open_registration(MouseEvent mouseEvent) {
     }
 }
 
