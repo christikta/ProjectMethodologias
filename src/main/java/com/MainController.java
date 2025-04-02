@@ -29,6 +29,7 @@ public class MainController {
     @FXML
     private WebView mapWebView;
 
+
     @FXML
     private void initialize() {
         // Load Google Maps
@@ -80,31 +81,7 @@ public class MainController {
     }
 
     private void addImageToAlbum(Image image) {
-        // Create image container
-        StackPane imagePane = new StackPane();
-        imagePane.setStyle("-fx-border-color: black; -fx-padding: 5px;");
 
-        // ImageView
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(150);
-        imageView.setFitHeight(150);
-
-        // Delete button (X)
-        Button deleteButton = new Button("X");
-        deleteButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
-        deleteButton.setOnAction(e -> imageContainer.getChildren().remove(imagePane));
-
-        // Comment field
-        TextField commentField = new TextField();
-        commentField.setPromptText("Γράψε ένα σχόλιο...");
-
-        // Layout
-        VBox imageBox = new VBox(imageView, commentField);
-        imageBox.setSpacing(5);
-        StackPane.setAlignment(deleteButton, javafx.geometry.Pos.TOP_RIGHT);
-
-        imagePane.getChildren().addAll(imageBox, deleteButton);
-        imageContainer.getChildren().add(imagePane);
     }
 
     private void showAlert(String message) {
@@ -122,14 +99,7 @@ public class MainController {
         System.exit(0);
     }
 
-    public void open_registration (MouseEvent mouseEvent, PolicyNode content_area) throws IOException {
-        Parent fxml = FXMLLoader.load(getClass().getResource("RegistrationUi.fxml"));
-        content_area.getChildren().remove();
-        content_area.getChildren().equals(fxml);
-    }
 
-    public void open_registration(MouseEvent mouseEvent) {
-    }
 }
 
 
