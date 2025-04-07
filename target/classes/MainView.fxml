@@ -32,6 +32,11 @@
             <Button fx:id="uploadButton" mnemonicParsing="false" onAction="#uploadImage" prefHeight="60.0" prefWidth="265.0" text="Upload Images" />
             <Button mnemonicParsing="false" onAction="#openCreateAlbumWindow" prefHeight="60.0" prefWidth="259.0" text="Create Albums" />
             <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="259.0" text="User" />
+            <Button layoutX="300.0" layoutY="250.0" text="Go to Registration" onMouseClicked="#goToRegistration">
+               <font>
+                  <Font size="16.0"/>
+               </font>
+            </Button>
          </children>
       </VBox>
 
