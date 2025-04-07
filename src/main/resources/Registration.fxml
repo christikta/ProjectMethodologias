@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="400.0" styleClass="parent" stylesheets="@signin.css"
+            xmlns="http://javafx.com/javafx/17.0.14"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.RegistrationController">
+   <Label layoutX="106.0" layoutY="87.0" text="Registration Form">
+      <font>
+         <Font name="Ebrima Bold" size="24.0"/>
+      </font>
+   </Label>
+   <TextField fx:id="usernameField" layoutX="79.0" layoutY="210.0" promptText="Enter Username" prefWidth="263.0"/>
+   <TextField fx:id="emailField" layoutX="79.0" layoutY="254.0" promptText="Email" prefWidth="263.0"/>
+   <PasswordField fx:id="passwordField" layoutX="79.0" layoutY="300.0" promptText="Password" prefWidth="263.0"/>
+   <PasswordField fx:id="confirmPasswordField" layoutX="79.0" layoutY="345.0" promptText="Confirm Password"
+                  prefWidth="263.0"/>
+   <Button fx:id="registerButton" layoutX="73.0" layoutY="421.0" text="Register" onMouseClicked="#handleRegister"
+           prefWidth="269.0"/>
+   <Label layoutX="9.0" layoutY="14.0" text="&lt;-" onMouseClicked="#back_to_menu">
+      <cursor>
+         <Cursor fx:constant="HAND"/>
+      </cursor>
+   </Label>
+   <Label layoutX="381.0" layoutY="14.0" text="X" onMouseClicked="#close_app">
+      <cursor>
+         <Cursor fx:constant="HAND"/>
+      </cursor>
+   </Label>
+</AnchorPane>
