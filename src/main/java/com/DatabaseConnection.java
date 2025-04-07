@@ -9,7 +9,7 @@ public class DatabaseConnection {
     private static final String USER = "postgres";
     private static final String PASSWORD = "ProjectMethodologias";
 
-    public static Connection connect() {
+    public static Connection getConnection() {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -22,6 +22,6 @@ public class DatabaseConnection {
     }
 
     public static void main(String[] args) {
-        connect();
+        getConnection();
     }
 }
