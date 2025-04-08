@@ -21,12 +21,14 @@
                   prefWidth="263.0"/>
    <Button fx:id="registerButton" layoutX="73.0" layoutY="421.0" text="Register" onMouseClicked="#handleRegister"
            prefWidth="269.0"/>
-   <Label layoutX="9.0" layoutY="14.0" text="&lt;-" onMouseClicked="#back_to_menu">
+
+   <Label layoutX="9.0" layoutY="14.0" text="&lt;-" onMouseClicked="#goBack">
       <cursor>
          <Cursor fx:constant="HAND"/>
       </cursor>
    </Label>
-   <Label layoutX="381.0" layoutY="14.0" text="X" onMouseClicked="#close_app">
+
+   <Label layoutX="381.0" layoutY="14.0" text="X" onMouseClicked="#closeApp">
       <cursor>
          <Cursor fx:constant="HAND"/>
       </cursor>

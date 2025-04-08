@@ -90,24 +90,27 @@ public class MainController {
 
     @FXML
     private void goToRegistration(MouseEvent event) {
+        System.out.println("Navigating to registration...");
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Registration.fxml"));
-            Parent registrationRoot = loader.load();
-            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(registrationRoot));
+            Parent registrationRoot = FXMLLoader.load(getClass().getResource("/Registration.fxml"));
+            Scene scene = new Scene(registrationRoot);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
-
-    public void close_app(javafx.scene.input.MouseEvent mouseEvent) {
-        System.exit(0);
     }
 
 
-}
+
+
+
+
+
 
 
 
