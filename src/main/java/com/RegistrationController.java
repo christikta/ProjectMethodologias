@@ -6,6 +6,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class RegistrationController {
 
     @FXML
@@ -23,24 +27,54 @@ public class RegistrationController {
     // Handles registration logic
     @FXML
     private void handleRegister(MouseEvent event) {
-        String username = usernameField.getText();
-        String email = emailField.getText();
+        String username = usernameField.getText().trim();
+        String email = emailField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error!", "Please complete all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "Please complete all fields.");
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Password Mismatch", "Passwords do not match");
+            showAlert(Alert.AlertType.ERROR, "Password Error", "Passwords do not match.");
             return;
         }
 
-        // Add your logic to store user data or call a service here
-        showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Welcome, " + username + "!");
+        String insertQuery = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, password); // For real-world apps, hash the password
+            stmt.setString(3, email);
+
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "User registered successfully!");
+                clearFields();
+            }
+
+        } catch (SQLException e) {
+            if (e.getSQLState().equals("23505")) { // duplicate email if you add a unique constraint
+                showAlert(Alert.AlertType.ERROR, "Error", "Email already exists.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Database Error", e.getMessage());
+            }
+            e.printStackTrace();
+        }
     }
+    private void clearFields() {
+        // Clear the fields after successful registration
+        usernameField.clear();
+        emailField.clear();
+        passwordField.clear();
+        confirmPasswordField.clear();
+    }
+
+
 
     // Goes back to the previous screen
     @FXML
