@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -13,42 +14,134 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import netscape.javascript.JSObject;
+import javafx.scene.control.Button;
 
+
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class MainController {
-
     @FXML
     private HBox imageContainer; // Container for images
 
-    @FXML
-    private WebView mapWebView;
-
 
     @FXML
-    private void initialize() {
-        // Load Google Maps
-        WebEngine webEngine = mapWebView.getEngine();
-        String html = """
-            <html>
-            <head>
-                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDc339GqJiO8n4zDGxreRW8ibnRmu7TZfQ"></script>
-                <script>
-                    function initMap() {
-                        var map = new google.maps.Map(document.getElementById('map'), {
-                            center: {lat: 37.9838, lng: 23.7275},
-                            zoom: 12
-                        });
-                    }
-                </script>
-            </head>
-            <body onload='initMap()'>
-                <div id='map' style='width:100%; height:100%;'></div>
-            </body>
-            </html>
-        """;
-        webEngine.loadContent(html);
+    private WebView mapView;
+
+    @FXML
+    private Button savePlaceButton;
+
+    @FXML
+    private Button confirmPlaceButton;
+
+    @FXML
+    private TextField placeNameField; // TextField to enter the name of the place
+
+    private WebEngine webEngine;
+    private double selectedLat;
+    private double selectedLng;
+
+    public void initialize() {
+        webEngine = mapView.getEngine();
+        webEngine.load(getClass().getResource("/map.html").toExternalForm());
+
+        // Wait until map is loaded
+        webEngine.getLoadWorker().stateProperty().addListener((obs, old, newState) -> {
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                // Inject Java bridge
+                JSObject window = (JSObject) webEngine.executeScript("window");
+                window.setMember("javaConnector", this);
+
+                // Add map click handler
+                webEngine.executeScript("""
+                    map.on('click', function(e) {
+                        const lat = e.latlng.lat.toFixed(5);
+                        const lng = e.latlng.lng.toFixed(5);
+
+                        javaConnector.setCoordinates(lat, lng);
+                    });
+                """);
+            }
+        });
+    }
+
+    // Called from JS when the user clicks on the map
+    public void setCoordinates(String lat, String lng) {
+        selectedLat = Double.parseDouble(lat);
+        selectedLng = Double.parseDouble(lng);
+        savePlaceButton.setDisable(false);
+        System.out.println("Selected: " + lat + ", " + lng);
+    }
+
+    // Called when "Save Place" button is clicked
+    @FXML
+    private void onSavePlace() {
+        // Show the TextField for entering the name and the Confirm button
+        placeNameField.setVisible(true);
+        confirmPlaceButton.setVisible(true);
+    }
+
+    // Called when "Confirm" button is clicked
+    @FXML
+    private void onConfirmSavePlace() {
+        // Get the name of the place from the TextField
+        String placeName = placeNameField.getText().trim();
+
+        if (placeName.isEmpty()) {
+            // Show alert or error message if the name is empty
+            showAlertName("Please enter a name for the place!");
+            return;
+        }
+
+        // Save the location and name to the database
+        saveLocationToDatabase(placeName, selectedLat, selectedLng);
+
+        // Add the marker on the map
+        String js = String.format("""
+            L.marker([%f, %f]).addTo(map)
+                .bindPopup("Saved place: %s, %f, %f").openPopup();
+        """, selectedLat, selectedLng, placeName, selectedLat, selectedLng);
+
+        webEngine.executeScript(js);
+
+        // Disable the button and hide input fields after saving
+        savePlaceButton.setDisable(true);
+        placeNameField.setVisible(false);
+        confirmPlaceButton.setVisible(false);
+    }
+
+    // Method to save the place and coordinates to the database
+    private void saveLocationToDatabase(String name, double lat, double lng) {
+        String insertQuery = "INSERT INTO places (name, latitude, longitude) VALUES (?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+
+            stmt.setString(1, name);
+            stmt.setDouble(2, lat);
+            stmt.setDouble(3, lng);
+
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Place saved to database!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error saving place to database: " + e.getMessage());
+        }
+    }
+
+    private void showAlertName(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
@@ -102,6 +195,7 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
 
     }
 
