@@ -176,12 +176,31 @@ public class MainController {
 
     private void addImageToAlbum(Image image) {
         javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(image);
-        imageView.setFitWidth(500);   // Set size if you want
-        imageView.setFitHeight(500);
+        imageView.setFitWidth(100);   // Thumbnail size
+        imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
+
+        // Make it clickable
+        imageView.setOnMouseClicked(event -> {
+            showImagePreview(image);
+        });
 
         imageContainer.getChildren().add(imageView);
     }
+
+    private void showImagePreview(Image image) {
+        Stage previewStage = new Stage();
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(600); // Adjust size as you like
+        imageView.setFitHeight(600);
+
+        Scene scene = new Scene(new javafx.scene.layout.StackPane(imageView), 650, 650);
+        previewStage.setTitle("Προεπισκόπηση Εικόνας");
+        previewStage.setScene(scene);
+        previewStage.show();
+    }
+
 
 
     private void showAlert(String message) {
