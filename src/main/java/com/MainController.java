@@ -27,6 +27,8 @@ import java.sql.SQLException;
 
 public class MainController {
     @FXML
+    public Button uploadButton;
+    @FXML
     private HBox imageContainer; // Container for images
 
 
@@ -160,7 +162,9 @@ public class MainController {
         fileChooser.setTitle("Επιλογή εικόνας για το άλμπουμ");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
 
-        File file = fileChooser.showOpenDialog(new Stage());
+        // Correct way: use the uploadButton to get the Stage
+        Stage stage = (Stage) uploadButton.getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             Image image = new Image(file.toURI().toString());
             addImageToAlbum(image);
@@ -169,9 +173,16 @@ public class MainController {
         }
     }
 
-    private void addImageToAlbum(Image image) {
 
+    private void addImageToAlbum(Image image) {
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(image);
+        imageView.setFitWidth(500);   // Set size if you want
+        imageView.setFitHeight(500);
+        imageView.setPreserveRatio(true);
+
+        imageContainer.getChildren().add(imageView);
     }
+
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -198,6 +209,9 @@ public class MainController {
 
 
     }
+
+
+
 
 
 
