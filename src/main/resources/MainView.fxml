@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.web.WebView?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
 
-<AnchorPane prefHeight="911.0" prefWidth="1466.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.14" fx:controller="com.MainController">
+<AnchorPane prefHeight="911.0" prefWidth="1466.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.MainController">
 
    <children>
 
@@ -39,11 +38,6 @@
             <HBox fx:id="imageContainer" layoutX="20.0" layoutY="50.0" spacing="20" />
          </children>
       </Pane>
-
-      <!-- Buttons -->
-      <Button layoutX="1308.0" layoutY="8.0" onMouseClicked="#goToRegistration" text="Go to Registration">
-         <font><Font size="16.0" /></font>
-      </Button>
 
       <Button fx:id="savePlaceButton" layoutX="272.0" layoutY="238.0" onAction="#onSavePlace" prefHeight="26.0" prefWidth="98.0" text="Save Location" />
 
