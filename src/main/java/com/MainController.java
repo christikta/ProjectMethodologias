@@ -1,5 +1,11 @@
 package com;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.GpsDirectory;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -114,11 +120,42 @@ public class MainController {
         File file = chooser.showOpenDialog(stage);
 
         if (file != null) {
-            Image img = new Image(file.toURI().toString());
-            VBox container = createImageBox(img);
-            imageContainer.getChildren().add(container);
+            try {
+                // Εμφάνιση εικόνας
+                Image img = new Image(file.toURI().toString());
+                VBox container = createImageBox(img);
+                imageContainer.getChildren().add(container);
+
+                // Ανάγνωση EXIF και GPS
+                Metadata metadata = ImageMetadataReader.readMetadata(file);
+                GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+                if (gpsDir != null) {
+                    // Λήψη GPS συντεταγμένων
+                    GeoLocation geoLocation = gpsDir.getGeoLocation();
+                    if (geoLocation != null) {
+                        double lat = geoLocation.getLatitude();
+                        double lng = geoLocation.getLongitude();
+                        System.out.println("GPS Location: Latitude = " + lat + ", Longitude = " + lng);
+
+                        // Εδώ μπορείς να χρησιμοποιήσεις τα GPS δεδομένα για να τα εμφανίσεις στο χάρτη
+                        String js = String.format("L.marker([%f, %f]).addTo(map).bindPopup('Photo Location: %f, %f');", lat, lng, lat, lng);
+                        webEngine.executeScript(js);
+                    } else {
+                        System.out.println("No GPS data found.");
+                    }
+                } else {
+                    System.out.println("No GPS data found in metadata.");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Failed to read image metadata: " + e.getMessage());
+            }
         }
     }
+
+
 
     private VBox createImageBox(Image image) {
         ImageView imageView = new ImageView(image);
