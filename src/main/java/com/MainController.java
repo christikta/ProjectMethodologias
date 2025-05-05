@@ -135,7 +135,7 @@ public class MainController {
         Button editBtn = new Button("⚙");
 
         VBox imageBox = new VBox(5);
-        deleteBtn.setOnAction(e -> imageContainer.getChildren().remove(imageBox));
+        deleteBtn.setOnAction(e -> showDeleteConfirmation(imageBox));
 
         final Image[] originalImage = {image};
 
@@ -150,16 +150,14 @@ public class MainController {
         MenuItem sepiaItem = new MenuItem("Sepia Tone");
         sepiaItem.setOnAction(e -> imageView.setImage(sepiaTone(imageView.getImage())));
 
-        MenuItem blurItem = new MenuItem("Blur");
-        blurItem.setOnAction(e -> imageView.setEffect(new javafx.scene.effect.GaussianBlur(5)));
-
+        
         MenuItem resetItem = new MenuItem("Remove Filter");
         resetItem.setOnAction(e -> {
             imageView.setImage(originalImage[0]);
             imageView.setEffect(null);
         });
 
-        editMenu.getItems().addAll(grayscaleItem, invertItem, sepiaItem, blurItem, resetItem);
+        editMenu.getItems().addAll(grayscaleItem, invertItem, sepiaItem, resetItem);
 
         editBtn.setOnMouseClicked(e -> editMenu.show(editBtn, e.getScreenX(), e.getScreenY()));
 
@@ -182,6 +180,19 @@ public class MainController {
         stage.setTitle("Image Preview");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void showDeleteConfirmation(VBox imageBox) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this image?");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                imageContainer.getChildren().remove(imageBox);
+            }
+        });
     }
 
     private Image convertToGrayscale(Image input) {

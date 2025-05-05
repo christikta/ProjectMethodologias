@@ -52,7 +52,7 @@ public class RegistrationController {
              PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
 
             stmt.setString(1, username);
-            stmt.setString(2, password); // For real-world apps, hash the password
+            stmt.setString(2, PasswordUtil.hashPassword(password));
             stmt.setString(3, email);
 
             int rows = stmt.executeUpdate();
@@ -100,6 +100,7 @@ public class RegistrationController {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Error loading SignIn view.");
         }
     }
+
 
     // Closes the application
     @FXML
