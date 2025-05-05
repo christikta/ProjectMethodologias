@@ -135,7 +135,7 @@ public class MainController {
         Button editBtn = new Button("⚙");
 
         VBox imageBox = new VBox(5);
-        deleteBtn.setOnAction(e -> imageContainer.getChildren().remove(imageBox));
+        deleteBtn.setOnAction(e -> showDeleteConfirmation(imageBox));
 
         final Image[] originalImage = {image};
 
@@ -182,6 +182,19 @@ public class MainController {
         stage.setTitle("Image Preview");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void showDeleteConfirmation(VBox imageBox) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this image?");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                imageContainer.getChildren().remove(imageBox);
+            }
+        });
     }
 
     private Image convertToGrayscale(Image input) {
