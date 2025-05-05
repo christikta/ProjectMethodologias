@@ -1,11 +1,15 @@
 package com;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -48,7 +52,7 @@ public class RegistrationController {
              PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
 
             stmt.setString(1, username);
-            stmt.setString(2, password); // For real-world apps, hash the password
+            stmt.setString(2, PasswordUtil.hashPassword(password));
             stmt.setString(3, email);
 
             int rows = stmt.executeUpdate();
@@ -79,12 +83,25 @@ public class RegistrationController {
     // Goes back to the previous screen
     @FXML
     private void goBack(MouseEvent event) {
-        // You can use this to close current stage or switch to another scene
-        System.out.println("Going back...");
-        // Example to close window:
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        stage.close();
+        // Load the SignIn.fxml scene again
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SignIn.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Set the new scene (SignIn.fxml) to the current stage
+            Scene scene = new Scene(root);
+            currentStage.setScene(scene);
+            currentStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Error loading SignIn view.");
+        }
     }
+
 
     // Closes the application
     @FXML
