@@ -150,16 +150,14 @@ public class MainController {
         MenuItem sepiaItem = new MenuItem("Sepia Tone");
         sepiaItem.setOnAction(e -> imageView.setImage(sepiaTone(imageView.getImage())));
 
-        MenuItem blurItem = new MenuItem("Blur");
-        blurItem.setOnAction(e -> imageView.setEffect(new javafx.scene.effect.GaussianBlur(5)));
-
+        
         MenuItem resetItem = new MenuItem("Remove Filter");
         resetItem.setOnAction(e -> {
             imageView.setImage(originalImage[0]);
             imageView.setEffect(null);
         });
 
-        editMenu.getItems().addAll(grayscaleItem, invertItem, sepiaItem, blurItem, resetItem);
+        editMenu.getItems().addAll(grayscaleItem, invertItem, sepiaItem, resetItem);
 
         editBtn.setOnMouseClicked(e -> editMenu.show(editBtn, e.getScreenX(), e.getScreenY()));
 
