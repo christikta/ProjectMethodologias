@@ -14,12 +14,12 @@ public class Main extends Application {
         // Database
         DatabaseConnection.getConnection();
         // Φορτώνουμε το FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/SignIn.fxml"));
         Parent root = loader.load();
 
         // Ορισμός του παραθύρου
         primaryStage.setTitle("Smart Travel Journal");
-        primaryStage.setScene(new Scene(root, 1466, 911)); // Το μέγεθος ταιριάζει με το FXML
+        primaryStage.setScene(new Scene(root, 800, 600)); // Το μέγεθος ταιριάζει με το FXML
         primaryStage.show();
     }
 
