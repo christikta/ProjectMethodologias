@@ -1,5 +1,8 @@
 package com;
-
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.*;
+import com.drew.metadata.exif.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -34,36 +37,74 @@ public class MainController {
     @FXML private HBox imageContainer;
     @FXML private Pane albumPane;
 
-    private WebEngine webEngine;
-    private double selectedLat;
-    private double selectedLng;
+    @FXML  private WebEngine webEngine;
+    @FXML private double selectedLat;
+    @FXML private double selectedLng;
 
+
+
+    @FXML private Button logoutButton;
+
+
+
+
+    @FXML
+    public void setCoordinates(String lat, String lng) {
+        selectedLat = Double.parseDouble(lat);
+        selectedLng = Double.parseDouble(lng);
+        System.out.println("Coordinates received: " + selectedLat + ", " + selectedLng);
+    }
+
+    @FXML
     public void initialize() {
         webEngine = mapView.getEngine();
         webEngine.load(getClass().getResource("/map.html").toExternalForm());
 
+        // Προσθήκη Listener για να βεβαιωθούμε ότι το map έχει φορτωθεί
         webEngine.getLoadWorker().stateProperty().addListener((obs, old, newState) -> {
             if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
                 JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("javaConnector", this);
-
+                window.setMember("javaConnector", this); // Συνδέει την Java μέθοδο με την JS
                 webEngine.executeScript("""
-                    map.on('click', function(e) {
-                        const lat = e.latlng.lat.toFixed(5);
-                        const lng = e.latlng.lng.toFixed(5);
-                        javaConnector.setCoordinates(lat, lng);
-                    });
-                """);
+                map.on('click', function(e) {
+                    const lat = e.latlng.lat.toFixed(5);
+                    const lng = e.latlng.lng.toFixed(5);
+                    javaConnector.onMapClicked(lat, lng); // Καλεί τη μέθοδο στην Java
+                });
+            """);
             }
         });
     }
 
-    public void setCoordinates(String lat, String lng) {
-        selectedLat = Double.parseDouble(lat);
-        selectedLng = Double.parseDouble(lng);
-        savePlaceButton.setDisable(false);
-        System.out.println("Selected coordinates: " + lat + ", " + lng);
+    @FXML
+    public void onMapClicked(String lat, String lng) {
+        System.out.println("Map clicked at: " + lat + ", " + lng);
+        if (allowUserToPickLocation) {
+            selectedLat = Double.parseDouble(lat);
+            selectedLng = Double.parseDouble(lng);
+            System.out.println("User selected location: " + selectedLat + ", " + selectedLng);
+
+            // Χρησιμοποιώντας String.format για να ενσωματώσουμε τις παραμέτρους στην JavaScript
+            String script = String.format("""
+    if (window.userSelectedMarker) {
+        map.removeLayer(window.userSelectedMarker);
     }
+    window.userSelectedMarker = L.marker([%f, %f]).addTo(map)
+        .bindPopup("Selected Location").openPopup();
+""", selectedLat, selectedLng);
+
+// Εκτέλεση του script στον webEngine
+            webEngine.executeScript(script);
+
+        }
+    }
+
+
+    @FXML
+    private boolean allowUserToPickLocation = false;
+
+
+
 
     @FXML
     private void onSavePlace() {
@@ -72,7 +113,7 @@ public class MainController {
     }
 
     @FXML
-    private void onConfirmSavePlace() {
+    public void onConfirmSavePlace() {
         String placeName = placeNameField.getText().trim();
         if (placeName.isEmpty()) {
             showAlert("Please enter a name for the place!");
@@ -80,18 +121,16 @@ public class MainController {
         }
 
         saveLocationToDatabase(placeName, selectedLat, selectedLng);
-
         String js = String.format("""
-            L.marker([%f, %f]).addTo(map)
-              .bindPopup("Saved: %s, %f, %f").openPopup();
-        """, selectedLat, selectedLng, placeName, selectedLat, selectedLng);
-
+        L.marker([%f, %f]).addTo(map)
+            .bindPopup("Saved: %s, %f, %f").openPopup();
+    """, selectedLat, selectedLng, placeName, selectedLat, selectedLng);
         webEngine.executeScript(js);
-        savePlaceButton.setDisable(true);
         placeNameField.setVisible(false);
         confirmPlaceButton.setVisible(false);
     }
 
+    @FXML
     private void saveLocationToDatabase(String name, double lat, double lng) {
         String query = "INSERT INTO places (name, latitude, longitude) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -105,6 +144,103 @@ public class MainController {
         }
     }
 
+
+
+
+
+    @FXML
+    private void handleLogout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Logout Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText("Do you want to log out?");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/SignIn.fxml"));
+                    Parent root = loader.load();
+                    Stage stage = (Stage) logoutButton.getScene().getWindow();  // παίρνει το τρέχον παράθυρο
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Login");
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error loading login screen.");
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @FXML private Label usernameLabel;  // Στο main.fxml θα πρέπει να υπάρχει Label με fx:id="usernameLabel"
+
+    private String loggedInUser;
+
+    public void setLoggedInUser(String username) {
+        this.loggedInUser = username;
+        if (usernameLabel != null) {
+            usernameLabel.setText("Welcome, " + username + "!");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    @FXML
+    private void extractGPSFromImage(File file) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(file);
+            GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+            if (gpsDirectory != null) {
+                GeoLocation geoLocation = gpsDirectory.getGeoLocation();
+                if (geoLocation != null && !geoLocation.isZero()) {
+                    selectedLat = geoLocation.getLatitude();
+                    selectedLng = geoLocation.getLongitude();
+                    allowUserToPickLocation = false;
+                    webEngine.executeScript(String.format("""
+                    L.marker([%f, %f]).addTo(map)
+                        .bindPopup("Image GPS Location").openPopup();
+                """, selectedLat, selectedLng));
+                } else {
+                    allowUserToPickLocation = true;
+                    showAlert("Image does not contain GPS data. Select a point on the map.");
+                }
+            }
+        } catch (Exception e) {
+            showAlert("Error reading image metadata: " + e.getMessage());
+        }
+    }
+
+    @FXML private Double gpsLat = null;
+    @FXML private Double gpsLng = null;
+
     @FXML
     private void uploadImage() {
         FileChooser chooser = new FileChooser();
@@ -114,11 +250,38 @@ public class MainController {
         File file = chooser.showOpenDialog(stage);
 
         if (file != null) {
+            try {
+                Metadata metadata = ImageMetadataReader.readMetadata(file);
+                GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+                if (gpsDir != null && gpsDir.getGeoLocation() != null) {
+                    GeoLocation loc = gpsDir.getGeoLocation();
+                    selectedLat = loc.getLatitude();
+                    selectedLng = loc.getLongitude();
+                    allowUserToPickLocation = false;  // Απενεργοποιούμε την επιλογή τοποθεσίας
+
+                    // Προσθήκη marker με βάση τις συντεταγμένες GPS της εικόνας
+                    webEngine.executeScript(String.format("""
+                    L.marker([%f, %f]).addTo(map)
+                        .bindPopup("Image GPS Location").openPopup();
+                """, selectedLat, selectedLng));
+                } else {
+                    allowUserToPickLocation = true;  // Ενεργοποιούμε την επιλογή τοποθεσίας
+                    showAlert("Η εικόνα δεν περιέχει GPS. Διάλεξε σημείο στον χάρτη.");
+                }
+
+            } catch (Exception e) {
+                showAlert("Σφάλμα ανάγνωσης metadata: " + e.getMessage());
+            }
+
+            // Εμφάνιση της εικόνας στο UI
             Image img = new Image(file.toURI().toString());
             VBox container = createImageBox(img);
             imageContainer.getChildren().add(container);
         }
     }
+
+
 
     private VBox createImageBox(Image image) {
         ImageView imageView = new ImageView(image);
@@ -263,18 +426,6 @@ public class MainController {
         albumPane.setVisible(false);
     }
 
-    @FXML
-    private void goToRegistration(MouseEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Registration.fxml"));
-            Stage stage = (Stage)((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Register");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

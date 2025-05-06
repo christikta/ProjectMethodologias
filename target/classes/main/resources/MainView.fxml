@@ -23,9 +23,13 @@
                </children>
             </Pane>
 
+            <Label fx:id="usernameLabel" layoutX="20" layoutY="10" text="Welcome!" textFill="WHITE">
+               <font><Font size="14.0" /></font>
+            </Label>
+
             <Button fx:id="uploadButton" onAction="#uploadImage" prefHeight="60.0" prefWidth="262.0" text="Upload Images" />
             <Button onAction="#openCreateAlbumWindow" prefHeight="60.0" prefWidth="259.0" text="Create Albums" />
-            <Button prefHeight="60.0" prefWidth="260.0" text="User" />
+            <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="60.0" prefWidth="260.0" text="Log Out" />
             <TextField fx:id="placeNameField" promptText="Enter a name for the place" visible="false" />
             <Button fx:id="confirmPlaceButton" onAction="#onConfirmSavePlace" text="Confirm" visible="false" />
          </children>

@@ -38,27 +38,7 @@
 
     const saveBtn = document.getElementById("saveBtn");
 
-    // When map is clicked
-    map.on('click', function(e) {
-        const lat = e.latlng.lat.toFixed(5);
-        const lng = e.latlng.lng.toFixed(5);
 
-        // If there's an unsaved marker, remove it
-        if (unsavedMarker) {
-            map.removeLayer(unsavedMarker);
-        }
-
-        // Save the new clicked location for later
-        selectedLatLng = e.latlng;
-
-        // Show the unsaved marker at the clicked location
-        unsavedMarker = L.marker(e.latlng)
-            .addTo(map)
-            .bindPopup(`Lat: ${lat}<br>Lon: ${lng}`)
-            .openPopup();
-
-
-    });
 
     // When Save button is clicked
     saveBtn.addEventListener('click', function () {

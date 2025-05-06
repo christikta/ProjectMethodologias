@@ -34,12 +34,20 @@ public class SignInController {
 
         if (isValidCredentials(email, password)) {
             try {
+                // Πάρε το όνομα χρήστη
+                String username = getUsernameFromDatabase(email);
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
                 Parent root = loader.load();
+
+                // Πάρε τον controller και πέρασε το όνομα
+                MainController controller = loader.getController();
+                controller.setLoggedInUser(username);
 
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(new Scene(root));
                 stage.show();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load main view.");
@@ -48,6 +56,29 @@ public class SignInController {
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
         }
     }
+
+    private String getUsernameFromDatabase(String email) {
+        String query = "SELECT username FROM users WHERE email = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "User";
+    }
+
+
+
+
+
+
+
+
 
 
     private boolean isValidCredentials(String email, String password) {
@@ -94,6 +125,7 @@ public class SignInController {
             e.printStackTrace();
         }
     }
+
 
 
     @FXML
