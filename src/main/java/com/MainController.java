@@ -43,6 +43,8 @@ public class MainController {
 
 
 
+
+
     @FXML private Button logoutButton;
 
 
@@ -95,6 +97,9 @@ public class MainController {
 
 // Εκτέλεση του script στον webEngine
             webEngine.executeScript(script);
+
+            allowUserToPickLocation = false;
+
 
         }
     }
@@ -171,23 +176,6 @@ public class MainController {
             }
         });
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     @FXML private Label usernameLabel;  // Στο main.fxml θα πρέπει να υπάρχει Label με fx:id="usernameLabel"
@@ -313,7 +301,7 @@ public class MainController {
         MenuItem sepiaItem = new MenuItem("Sepia Tone");
         sepiaItem.setOnAction(e -> imageView.setImage(sepiaTone(imageView.getImage())));
 
-        
+
         MenuItem resetItem = new MenuItem("Remove Filter");
         resetItem.setOnAction(e -> {
             imageView.setImage(originalImage[0]);
