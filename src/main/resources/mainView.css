@@ -1,0 +1,30 @@
+/* mainView.css */
+
+/* Base style for all buttons */
+.button {
+    -fx-background-color: #5C3D88;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0.2, 0, 2);
+}
+
+/* Hover effect */
+.button:hover {
+    -fx-background-color: #6A4D9C;
+}
+
+/* Special style for delete buttons */
+.delete-button {
+    -fx-background-color: #D32F2F;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 4, 0.2, 0, 1);
+}
+
+.delete-button:hover {
+    -fx-background-color: #B71C1C;
+}
