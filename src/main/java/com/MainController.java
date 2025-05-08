@@ -21,6 +21,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -29,6 +34,7 @@ import java.sql.SQLException;
 
 public class MainController {
 
+    @FXML Button uploadButton1;
     @FXML private WebView mapView;
     @FXML private Button uploadButton;
     @FXML private Button savePlaceButton;
@@ -422,4 +428,132 @@ public class MainController {
         alert.setContentText(msg);
         alert.showAndWait();
     }
+
+
+
+
+            //------------------ UPLOAD VIDEO/ START-----------------
+
+            @FXML
+            private void uploadVideo() {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Επιλογή βίντεο");
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.avi", "*.mov", "*.mkv"));
+
+                Stage stage = (Stage) uploadButton.getScene().getWindow();
+                File file = fileChooser.showOpenDialog(stage);
+                if (file != null) {
+                    addVideoToAlbum(file);
+                } else {
+                    showAlert("Δεν επιλέχθηκε βίντεο.");
+                }
+            }
+
+            private void addVideoToAlbum(File file) {
+                String mediaUrl = file.toURI().toString();
+                javafx.scene.media.Media media = new javafx.scene.media.Media(mediaUrl);
+                javafx.scene.media.MediaPlayer player = new javafx.scene.media.MediaPlayer(media);
+
+                javafx.scene.image.ImageView thumbnail = new javafx.scene.image.ImageView();
+                thumbnail.setFitWidth(100);
+                thumbnail.setFitHeight(100);
+                thumbnail.setPreserveRatio(true);
+
+                // The delete button will only be created inside the setOnReady method
+                player.setOnReady(() -> {
+                    javafx.scene.media.MediaView mediaView = new javafx.scene.media.MediaView(player);
+                    mediaView.setFitWidth(100);
+                    mediaView.setFitHeight(100);
+                    mediaView.setPreserveRatio(true);
+
+                    // Capture the current video frame using snapshot
+                    javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+                    javafx.scene.image.WritableImage image = mediaView.snapshot(params, null);
+
+                    // Set the captured image as the thumbnail
+                    thumbnail.setImage(image);
+
+                    // Create the delete button inside setOnReady
+                    Button deleteButton = new Button("Delete");
+
+                    // Create wrapper VBox for the thumbnail and delete button
+                    VBox wrapper = new VBox(thumbnail, deleteButton);
+                    wrapper.setSpacing(5);
+
+                    // Set the action for the delete button
+                    deleteButton.setOnAction(e -> imageContainer.getChildren().remove(wrapper));
+
+                    // Add the wrapper (thumbnail and delete button) to the image container
+                    imageContainer.getChildren().add(wrapper);
+                });
+
+                // Set preview on click
+                thumbnail.setOnMouseClicked(event -> showVideoPreview(file));
+
+                // Start loading the media player (mute and pause immediately to avoid playback)
+                player.setMute(true);
+                player.play();
+                player.pause(); // pause immediately to avoid full playback
+            }
+
+
+
+
+    private void showVideoPreview(File file) {
+        String uri = file.toURI().toString();
+        System.out.println("Video Preview URI: " + uri);
+
+        javafx.scene.media.Media media;
+        try {
+            media = new javafx.scene.media.Media(uri);
+        } catch (Exception e) {
+            showAlert("Error loading media: " + e.getMessage());
+            return;
+        }
+
+        javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(media);
+        javafx.scene.media.MediaView mediaView = new javafx.scene.media.MediaView(mediaPlayer);
+
+        mediaView.setFitWidth(600);
+        mediaView.setFitHeight(600);
+        mediaView.setPreserveRatio(true);
+
+        Slider progressSlider = new Slider();
+        progressSlider.setPrefWidth(580);
+        progressSlider.setMin(0);
+
+        mediaPlayer.setOnReady(() -> {
+            progressSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+
+            mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+                if (!progressSlider.isValueChanging()) {
+                    progressSlider.setValue(newTime.toSeconds());
+                }
+            });
+
+            progressSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+                if (!isChanging) {
+                    mediaPlayer.seek(javafx.util.Duration.seconds(progressSlider.getValue()));
+                }
+            });
+
+            progressSlider.setOnMouseReleased(e -> mediaPlayer.seek(javafx.util.Duration.seconds(progressSlider.getValue())));
+            mediaPlayer.play();  // Only start after media is ready
+        });
+
+        mediaPlayer.setOnError(() -> {
+            showAlert("MediaPlayer error: " + mediaPlayer.getError().getMessage());
+        });
+
+        VBox vbox = new VBox(mediaView, progressSlider);
+        vbox.setSpacing(10);
+        Scene scene = new Scene(vbox, 650, 700);
+
+        Stage previewStage = new Stage();
+        previewStage.setTitle("Προεπισκόπηση Βίντεο");
+        previewStage.setScene(scene);
+        previewStage.show();
+    }
+
+
 }
