@@ -17,7 +17,7 @@
    <children>
 
       <!-- Χάρτης -->
-      <WebView fx:id="mapView" layoutX="303.0" layoutY="53.0" prefHeight="519.0" prefWidth="1122.0" />
+      <WebView fx:id="mapView" layoutX="303.0" layoutY="53.0" prefHeight="519.0" prefWidth="1600.0" />
 
       <!-- Sidebar -->
       <VBox prefWidth="259.0" style="-fx-background-color: #626F47;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -36,25 +36,25 @@
             <TextField fx:id="placeNameField" promptText="Enter a name for the place" visible="false" />
 
             <Button fx:id="uploadButton" onAction="#uploadImage" prefHeight="60.0" prefWidth="262.0" style="-fx-font-family: Georgia, serif;" styleClass="button" text="Upload Images" translateY="-25.0" />
-            <Button fx:id="confirmPlaceButton" onAction="#onConfirmSavePlace" styleClass="button" text="Confirm" visible="false" />
-            <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="60.0" prefWidth="260.0" style="-fx-font-family: Georgia, serif;" styleClass="button" text="Log Out" translateY="404.0" />
-            <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="259.0" styleClass="button" text="User" translateY="405.0" />
+            <Button fx:id="confirmPlaceButton" onAction="#onConfirmSavePlace" styleClass="button1" text="Confirm" visible="false" />
+            <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="60.0" prefWidth="260.0" style="-fx-font-family: Georgia, serif;" styleClass="button" text="Log Out" translateY="540.0" />
+            <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="259.0" styleClass="button" text="User" translateY="540.0" />
 
 
          </children>
       </VBox>
 
       <!-- Άλμπουμ -->
-      <Pane fx:id="albumPane" layoutX="391.0" layoutY="480.0" prefHeight="400.0" prefWidth="980.0" style="-fx-background-color: lightgray; -fx-border-color: black;" visible="false">
+      <Pane fx:id="albumPane" layoutX="391.0" layoutY="600.0" prefHeight="400.0" prefWidth="1300.0" style="-fx-background-color: lightgray; -fx-border-color: black;" visible="false">
          <children>
-            <Button layoutX="950.0" layoutY="10.0" onAction="#closeAlbumWindow" text="X" />
-            <HBox fx:id="imageContainer" layoutX="20.0" layoutY="50.0" spacing="20" />
+            <Button layoutX="1240.0" layoutY="10.0" onAction="#closeAlbumWindow" text="X" styleClass="button2" />
+            <HBox fx:id="imageContainer" layoutX="20.0" layoutY="50.0" spacing="20" styleClass="button2"/>
          </children>
       </Pane>
 
-      <Button id="save" fx:id="savePlaceButton" layoutX="1333.0" layoutY="584.0" onAction="#onSavePlace" prefHeight="26.0" prefWidth="98.0" styleClass="Buttonsave" text="Save Location" />
+      <Button id="save" fx:id="savePlaceButton" layoutX="1790.0" layoutY="584.0" onAction="#onSavePlace" prefHeight="26.0" prefWidth="98.0" styleClass="button1" text="Save Location" />
 
-      <Label fx:id="usernameLabel" layoutX="832.0" layoutY="14.0" style="-fx-font-family: Georgia, serif;" text="Welcome!">
+      <Label fx:id="usernameLabel" layoutX="1000.0" layoutY="14.0" style="-fx-font-family: Georgia, serif;" text="Welcome!" styleClass="text1">
          <font>
             <Font size="26.0" />
          </font>
