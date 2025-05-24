@@ -1,0 +1,105 @@
+
+/*-----------------------Buttons---------------------------------*/
+.button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;   /* No border */
+    -fx-cursor: hand;
+    -fx-padding: 10 20 10 20;
+
+      /* Limited transition effect in JavaFX */
+        -fx-transition: all 0.5s ease;
+}
+
+.button:hover {
+    -fx-background-color: #533617;
+    -fx-text-fill: white;
+}
+
+.button1 {
+    -fx-background-color: #533617;
+    -fx-text-fill: white;
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;   /* No border */
+    -fx-cursor: hand;
+   /* -fx-padding: 10 20 10 20;
+
+      /* Limited transition effect in JavaFX */
+        -fx-transition: all 0.5s ease;
+}
+
+.button1:hover {
+    -fx-background-color: #626F47;
+    -fx-text-fill: white;
+}
+
+
+
+.button2 {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;   /* No border */
+    -fx-cursor: hand;
+    -fx-padding: 10 20 10 20;
+
+      /* Limited transition effect in JavaFX */
+        -fx-transition: all 0.5s ease;
+}
+
+.button2:hover {
+    -fx-background-color: #533617;
+    -fx-text-fill: white;
+}
+
+
+
+#logoutButton {
+    -fx-background-color: #380000;
+}
+
+#logoutButton:hover {
+    -fx-background-color: #940000 ;
+}
+
+/* Style the sidebar VBox */
+.vbox {
+    -fx-background-color: #940000 ;
+}
+
+/* Style the albumPane */
+#albumPane {
+    -fx-background-color: lightgray;
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-padding: 10;
+}
+
+/* Label styling */
+#usernameLabel {
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 26px;
+    -fx-text-fill: #333;
+}
+
+/*----------------------texts-----------------------------------*/
+
+.text1 {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: textEntry 7s ease-out forwards;
+}
+
+@keyframes textEntry {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
