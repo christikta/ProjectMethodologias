@@ -25,6 +25,23 @@ public class SignInController {
     @FXML
     private PasswordField passwordField;
 
+    private int getUserIdFromDatabase(String email) {
+        String sql = "SELECT id FROM users WHERE email = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // λάθος ή μη υπαρκτός χρήστης
+    }
+
 
 
     @FXML
@@ -34,15 +51,14 @@ public class SignInController {
 
         if (isValidCredentials(email, password)) {
             try {
-                // Πάρε το όνομα χρήστη
                 String username = getUsernameFromDatabase(email);
+                int userId = getUserIdFromDatabase(email);  // Νέο: παίρνουμε και το ID
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
                 Parent root = loader.load();
 
-                // Πάρε τον controller και πέρασε το όνομα
                 MainController controller = loader.getController();
-                controller.setLoggedInUser(username);
+                controller.setLoggedInUser(username, userId);  // Περνάμε και το ID
 
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(new Scene(root));

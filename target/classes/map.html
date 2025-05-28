@@ -2,57 +2,99 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Leaflet Map</title>
+    <title>Leaflet Map with OpenStreetMap API</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
     <style>
         html, body, #map {
             height: 100%;
             margin: 0;
         }
+        #saveBtn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 10px;
+            display: none;
+        }
+        #attribution {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
+
+<!-- Map -->
 <div id="map"></div>
 
-<!-- Save Button (initially hidden) -->
-<button id="saveBtn" style="
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    padding: 10px;
-    display: none;
-">Save Place</button>
+<!-- Save Button -->
+<button id="saveBtn">Save Place</button>
 
+<!-- Attribution (σύμφωνα με την άδεια χρήσης OSM) -->
+<div id="attribution">
+    Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors
+</div>
+
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
+    // Δημιουργία χάρτη με χρήση Leaflet.js και OpenStreetMap Tile API
     const map = L.map('map').setView([41.0850, 23.5476], 13); // Serres, Greece
 
+    // Tile Layer από OpenStreetMap (χρήση API)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
     }).addTo(map);
 
     let selectedLatLng = null;
-    let unsavedMarker = null;  // Variable to hold the unsaved marker
-
+    let unsavedMarker = null;
     const saveBtn = document.getElementById("saveBtn");
 
+    // Κλικ στον χάρτη για επιλογή σημείου και εμφάνιση διεύθυνσης με χρήση OSM Nominatim API
+    map.on('click', function (e) {
+        selectedLatLng = e.latlng;
 
+        if (unsavedMarker) {
+            map.removeLayer(unsavedMarker);
+        }
 
-    // When Save button is clicked
+        unsavedMarker = L.marker(selectedLatLng).addTo(map);
+
+        // Εμφάνιση κουμπιού
+        saveBtn.style.display = 'block';
+
+        // Κλήση του Nominatim API (OpenStreetMap Reverse Geocoding)
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${selectedLatLng.lat}&lon=${selectedLatLng.lng}&format=json`)
+            .then(response => response.json())
+            .then(data => {
+                const address = data.display_name || "Unknown location";
+                unsavedMarker.bindPopup(`<strong>Διεύθυνση:</strong><br>${address}`).openPopup();
+            })
+            .catch(error => {
+                console.error("Σφάλμα κατά το reverse geocoding:", error);
+            });
+    });
+
+    // Αποθήκευση σημείου
     saveBtn.addEventListener('click', function () {
         if (selectedLatLng) {
-            // Save the place here (you can send it to the server or store it in a list)
-            // For now, just log it to the console
             console.log(`Saved place at: Lat: ${selectedLatLng.lat.toFixed(5)}, Lon: ${selectedLatLng.lng.toFixed(5)}`);
 
-            // Optionally, you can store the marker or save it in your database
-
-            // Hide the save button after saving
+            // Απόκρυψη κουμπιού μετά την αποθήκευση
             saveBtn.style.display = 'none';
 
-            // Remove the unsaved marker from the map
+            // Μπορείς να αποθηκεύσεις το σημείο σε λίστα ή σε server
             unsavedMarker = null;
         }
     });
