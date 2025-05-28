@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -40,6 +41,8 @@ import java.sql.SQLException;
 
 
 public class MainController {
+
+
 
     @FXML Button uploadButton1;
     @FXML private WebView mapView;
@@ -285,6 +288,7 @@ public class MainController {
         imageView.setFitWidth(100);
         imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
+
 
         imageView.setOnMouseClicked(e -> showImageInPopOut(imageView.getImage()));
 
