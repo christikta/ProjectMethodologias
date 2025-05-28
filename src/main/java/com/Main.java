@@ -14,7 +14,7 @@ public class Main extends Application {
         // Database
         DatabaseConnection.getConnection();
         // Φορτώνουμε το FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainview.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/SignIn.fxml"));
         Parent root = loader.load();
 
         // Ορισμός του παραθύρου
