@@ -25,12 +25,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.embed.swing.SwingFXUtils;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
 
 public class MainController {
 
@@ -119,6 +126,7 @@ public class MainController {
 
     @FXML
     private void onSavePlace() {
+        saveImagesToDatabase();
         placeNameField.setVisible(true);
         confirmPlaceButton.setVisible(true);
     }
@@ -186,14 +194,9 @@ public class MainController {
 
     @FXML private Label usernameLabel;  // Στο main.fxml θα πρέπει να υπάρχει Label με fx:id="usernameLabel"
 
-    private String loggedInUser;
 
-    public void setLoggedInUser(String username) {
-        this.loggedInUser = username;
-        if (usernameLabel != null) {
-            usernameLabel.setText("Welcome, " + username + "!");
-        }
-    }
+
+
 
 
 
@@ -555,5 +558,64 @@ public class MainController {
         previewStage.show();
     }
 
+
+    //Save Photo To Database
+
+    private String loggedInUser;
+    private int loggedInUserId;
+
+    public void setLoggedInUser(String username, int userId) {
+        this.loggedInUser = username;
+        this.loggedInUserId = userId;
+
+        if (usernameLabel != null) {
+            usernameLabel.setText("Welcome, " + username + "!");
+        }
+    }
+
+
+    private void insertPhoto(int userId, byte[] imageData, String comment, double lat, double lng) {
+        String sql = "INSERT INTO user_photos (user_id, image_data, comment, latitude, longitude, created_at) VALUES (?, ?, ?, ?, ?, now())";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setBytes(2, imageData);
+            stmt.setString(3, comment);
+            stmt.setDouble(4, lat);
+            stmt.setDouble(5, lng);
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            showAlert("DB Insert Error: " + e.getMessage());
+        }
+    }
+
+
+    @FXML
+    private void saveImagesToDatabase() {
+        for (Node node : imageContainer.getChildren()) {
+            if (node instanceof VBox imageBox) {
+                ImageView imageView = (ImageView) imageBox.getChildren().get(0);
+                TextField commentField = (TextField) imageBox.getChildren().get(1);
+                String comment = commentField.getText();
+
+                try {
+                    // Μετατροπή Image σε byte[]
+                    Image image = imageView.getImage();
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(bufferedImage, "png", baos);
+                    byte[] imageBytes = baos.toByteArray();
+
+                    insertPhoto(loggedInUserId, imageBytes, comment, selectedLat, selectedLng);
+
+                } catch (IOException e) {
+                    showAlert("Image conversion error: " + e.getMessage());
+                }
+            }
+        }
+    }
 
 }
