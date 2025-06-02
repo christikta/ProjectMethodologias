@@ -3,11 +3,14 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.lang.GeoLocation;
 import com.drew.metadata.*;
 import com.drew.metadata.exif.*;
+import javafx.concurrent.Worker;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
@@ -15,11 +18,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
 import javafx.scene.control.Alert;
@@ -30,6 +37,7 @@ import javafx.embed.swing.SwingFXUtils;
 
 
 import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,6 +46,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 
 public class MainController {
@@ -63,6 +72,20 @@ public class MainController {
 
     @FXML private Button logoutButton;
 
+    //new
+
+        @FXML
+        private void handleNewAlbum(ActionEvent event) {
+            System.out.println("New Album clicked");
+            // Add logic to open a form or do something
+        }
+
+        @FXML
+        private void handleImportAlbum(ActionEvent event) {
+            System.out.println("Import Album clicked");
+            // Add logic to import albums
+        }
+
 
 
 
@@ -80,7 +103,7 @@ public class MainController {
 
         // Προσθήκη Listener για να βεβαιωθούμε ότι το map έχει φορτωθεί
         webEngine.getLoadWorker().stateProperty().addListener((obs, old, newState) -> {
-            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+            if (newState == Worker.State.SUCCEEDED) {
                 JSObject window = (JSObject) webEngine.executeScript("window");
                 window.setMember("javaConnector", this); // Συνδέει την Java μέθοδο με την JS
                 webEngine.executeScript("""
@@ -458,24 +481,24 @@ public class MainController {
 
             private void addVideoToAlbum(File file) {
                 String mediaUrl = file.toURI().toString();
-                javafx.scene.media.Media media = new javafx.scene.media.Media(mediaUrl);
-                javafx.scene.media.MediaPlayer player = new javafx.scene.media.MediaPlayer(media);
+                Media media = new Media(mediaUrl);
+                MediaPlayer player = new MediaPlayer(media);
 
-                javafx.scene.image.ImageView thumbnail = new javafx.scene.image.ImageView();
+                ImageView thumbnail = new ImageView();
                 thumbnail.setFitWidth(100);
                 thumbnail.setFitHeight(100);
                 thumbnail.setPreserveRatio(true);
 
                 // The delete button will only be created inside the setOnReady method
                 player.setOnReady(() -> {
-                    javafx.scene.media.MediaView mediaView = new javafx.scene.media.MediaView(player);
+                    MediaView mediaView = new MediaView(player);
                     mediaView.setFitWidth(100);
                     mediaView.setFitHeight(100);
                     mediaView.setPreserveRatio(true);
 
                     // Capture the current video frame using snapshot
-                    javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
-                    javafx.scene.image.WritableImage image = mediaView.snapshot(params, null);
+                    SnapshotParameters params = new SnapshotParameters();
+                    WritableImage image = mediaView.snapshot(params, null);
 
                     // Set the captured image as the thumbnail
                     thumbnail.setImage(image);
@@ -510,16 +533,16 @@ public class MainController {
         String uri = file.toURI().toString();
         System.out.println("Video Preview URI: " + uri);
 
-        javafx.scene.media.Media media;
+        Media media;
         try {
-            media = new javafx.scene.media.Media(uri);
+            media = new Media(uri);
         } catch (Exception e) {
             showAlert("Error loading media: " + e.getMessage());
             return;
         }
 
-        javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(media);
-        javafx.scene.media.MediaView mediaView = new javafx.scene.media.MediaView(mediaPlayer);
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        MediaView mediaView = new MediaView(mediaPlayer);
 
         mediaView.setFitWidth(600);
         mediaView.setFitHeight(600);
@@ -540,11 +563,11 @@ public class MainController {
 
             progressSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
                 if (!isChanging) {
-                    mediaPlayer.seek(javafx.util.Duration.seconds(progressSlider.getValue()));
+                    mediaPlayer.seek(Duration.seconds(progressSlider.getValue()));
                 }
             });
 
-            progressSlider.setOnMouseReleased(e -> mediaPlayer.seek(javafx.util.Duration.seconds(progressSlider.getValue())));
+            progressSlider.setOnMouseReleased(e -> mediaPlayer.seek(Duration.seconds(progressSlider.getValue())));
             mediaPlayer.play();  // Only start after media is ready
         });
 
@@ -622,4 +645,39 @@ public class MainController {
         }
     }
 
+
+    //new too
+    public void handleImportAlbum(javafx.event.ActionEvent actionEvent) {
+    }
+
+    public void handleNewAlbum(javafx.event.ActionEvent actionEvent) {
+    }
+
+    //new
+    public void handleAddMenuShowing(Event event) {
+            // This method is called when the '+ Add Menu' dropdown is opened (can be used to trigger input prompt)
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("New Menu");
+            dialog.setHeaderText("Create a new submenu");
+            dialog.setContentText("Enter menu name:");
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(name -> {
+                if (!name.trim().isEmpty()) {
+                    Menu newMenu = new Menu(name);
+
+                    // Optionally add submenu items inside this new menu
+                    MenuItem dummyItem = new MenuItem("Sub Item 1");
+                    newMenu.getItems().add(dummyItem);
+
+                    Menu createAlbumMenu = null;
+                    createAlbumMenu.getItems().add(newMenu);
+                }
+            });
+
+            // Hide the addMenu dropdown after input
+        Menu addMenu = null;
+        addMenu.hide();
+        
+    }
 }

@@ -60,6 +60,59 @@
 }
 
 
+/*dropdown menu*/
+.menu-button.button > .label {
+    -fx-text-fill: white;    /* text color */
+    -fx-alignment: center;   /* center text horizontally */
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 16px;
+}
+
+/* Also, keep the button background transparent and stable on hover */
+.menu-button.button {
+    -fx-background-color: transparent;
+}
+
+.menu-button.button:hover {
+    -fx-background-color: #533617;
+}
+
+/* Keep dropdown arrow white */
+.menu-button.button .arrow {
+    -fx-fill: white;
+}
+
+/* Remove hover background for arrow button */
+.menu-button.button:hover .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/*item menu*/
+/* Dropdown menu popup background pane */
+.menu {
+    -fx-background-color: linear-gradient(to bottom right, #5a4320, #3a2b0e);
+    -fx-background-radius: 12;
+}
+
+/* Individual menu items */
+.menu-item {
+    -fx-text-fill: white;
+    -fx-font-family: Georgia, serif;
+    -fx-font-size: 14px;
+    -fx-padding: 10 35 10 35;
+    -fx-background-color: transparent;
+}
+
+/* Hover effect for menu items */
+.menu-item:hover {
+    -fx-background-color: #6a4b1f;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+}
+
+
+
+
 
 #logoutButton {
     -fx-background-color: #380000;
