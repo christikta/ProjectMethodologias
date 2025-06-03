@@ -5,10 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="400.0" styleClass="parent" stylesheets="@signin.css"
-            xmlns="http://javafx.com/javafx/17.0.14"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.RegistrationController">
+<AnchorPane prefHeight="600.0" prefWidth="400.0" styleClass="parent" stylesheets="@signin.css" xmlns="http://javafx.com/javafx/17.0.14" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.RegistrationController">
    <Label layoutX="106.0" layoutY="87.0" text="Registration Form">
       <font>
          <Font name="Ebrima Bold" size="24.0"/>

@@ -3,10 +3,12 @@ package com;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
@@ -52,16 +54,26 @@ public class SignInController {
         if (isValidCredentials(email, password)) {
             try {
                 String username = getUsernameFromDatabase(email);
-                int userId = getUserIdFromDatabase(email);  // Νέο: παίρνουμε και το ID
+                int userId = getUserIdFromDatabase(email);
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
                 Parent root = loader.load();
 
                 MainController controller = loader.getController();
-                controller.setLoggedInUser(username, userId);  // Περνάμε και το ID
+                controller.setLoggedInUser(username, userId);
 
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+                // ✨ Ρυθμίζουμε το μέγεθος σε 80% της οθόνης
+                Screen screen = Screen.getPrimary();
+                Rectangle2D bounds = screen.getVisualBounds();
+
                 stage.setScene(new Scene(root));
+                stage.setWidth(bounds.getWidth() * 0.8);
+                stage.setHeight(bounds.getHeight() * 0.8);
+                stage.setX(bounds.getMinX() + bounds.getWidth() * 0.1);
+                stage.setY(bounds.getMinY() + bounds.getHeight() * 0.1);
+
                 stage.show();
 
             } catch (IOException e) {
@@ -72,6 +84,7 @@ public class SignInController {
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
         }
     }
+
 
     private String getUsernameFromDatabase(String email) {
         String query = "SELECT username FROM users WHERE email = ?";

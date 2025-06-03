@@ -200,18 +200,6 @@ public class MainController {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     @FXML
     private void extractGPSFromImage(File file) {
         try {
