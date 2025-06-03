@@ -31,13 +31,12 @@ import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 
 public class MainController {
@@ -587,6 +586,7 @@ public class MainController {
 
     @FXML
     private void saveImagesToDatabase() {
+
         for (Node node : imageContainer.getChildren()) {
             if (node instanceof VBox imageBox) {
                 ImageView imageView = (ImageView) imageBox.getChildren().get(0);
@@ -600,14 +600,68 @@ public class MainController {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ImageIO.write(bufferedImage, "png", baos);
                     byte[] imageBytes = baos.toByteArray();
+                    System.out.println("Original image bytes length: " + imageBytes.length);
+                    System.out.println("First 10 bytes original: " + Arrays.toString(Arrays.copyOf(imageBytes, 10)));
+                    // Κρυπτογράφηση των bytes της εικόνας
+                    byte[] encryptedImageBytes = CryptoUtils.encrypt(imageBytes);
+                    System.out.println("Encrypted image bytes length: " + encryptedImageBytes.length);
+                    System.out.println("First 10 bytes encrypted: " + Arrays.toString(Arrays.copyOf(encryptedImageBytes, 10)));
+
+
+                    insertPhoto(loggedInUserId, encryptedImageBytes, comment, selectedLat, selectedLng);
 
                     insertPhoto(loggedInUserId, imageBytes, comment, selectedLat, selectedLng);
 
                 } catch (IOException e) {
                     showAlert("Image conversion error: " + e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
     }
+
+    private void loadPhotosForUser(int userId) {
+        String sql = "SELECT image_data, comment, latitude, longitude FROM user_photos WHERE user_id = ? ORDER BY created_at DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            imageContainer.getChildren().clear();  // Καθαρίζουμε προηγούμενες εικόνες
+
+            while (rs.next()) {
+                byte[] encryptedData = rs.getBytes("image_data");
+
+                // Αποκρυπτογράφηση
+                byte[] decryptedData = CryptoUtils.decrypt(encryptedData);
+
+                // Μετατροπή σε Image
+                InputStream is = new ByteArrayInputStream(decryptedData);
+                BufferedImage bufferedImage = ImageIO.read(is);
+                Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+
+                String comment = rs.getString("comment");
+                double lat = rs.getDouble("latitude");
+                double lng = rs.getDouble("longitude");
+
+                // Δημιουργούμε VBox με εικόνα και σχόλιο (παραλλαγή της δικής σου createImageBox)
+                VBox imageBox = createImageBox(fxImage);
+                // Βάζουμε το comment μέσα στο TextField (δεδομένου ότι το createImageBox έχει TextField στη θέση 1)
+                TextField commentField = (TextField) imageBox.getChildren().get(1);
+                commentField.setText(comment);
+
+                imageContainer.getChildren().add(imageBox);
+
+                // Αν θέλεις, μπορείς να κάνεις κάτι με τις συντεταγμένες lat, lng (π.χ. να προσθέσεις marker στον χάρτη)
+            }
+
+        } catch (Exception e) {
+            showAlert("Error loading photos: " + e.getMessage());
+        }
+    }
+
 
 }
