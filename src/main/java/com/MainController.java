@@ -10,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -32,11 +33,19 @@ import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Base64;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 
 
 public class MainController {
@@ -227,6 +236,76 @@ public class MainController {
 
     @FXML private Double gpsLat = null;
     @FXML private Double gpsLng = null;
+    private String detectLandmark(File file) {
+        try {
+            byte[] imageBytes = java.nio.file.Files.readAllBytes(file.toPath());
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            String jsonRequest = """
+        {
+          "requests": [
+            {
+              "image": {
+                "content": "%s"
+              },
+              "features": [
+                {
+                  "type": "LANDMARK_DETECTION",
+                  "maxResults": 1
+                }
+              ]
+            }
+          ]
+        }
+        """.formatted(base64Image);
+
+            URL url = new URL("https://vision.googleapis.com/v1/images:annotate?key=" + "AIzaSyAHYLwd4j98pDHmeZacyKoUDjV5uPKu5A8");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonRequest.getBytes("UTF-8"));
+            }
+
+            int responseCode = conn.getResponseCode();
+            InputStream is = (responseCode == 200) ? conn.getInputStream() : conn.getErrorStream();
+
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+
+            String json = response.toString();
+
+            // Εκτύπωση ολόκληρου του JSON για debug
+            System.out.println("Google Vision API response: " + json);
+
+            // Απλή αναζήτηση "description" στο JSON (όνομα landmark)
+            int descIndex = json.indexOf("\"description\":");
+            if (descIndex != -1) {
+                int start = json.indexOf("\"", descIndex + 14) + 1;
+                int end = json.indexOf("\"", start);
+                if (start != -1 && end != -1) {
+                    String landmark = json.substring(start, end);
+                    System.out.println("Detected landmark: " + landmark); // debug εκτύπωση
+                    return landmark;
+                }
+            }
+
+        } catch (Exception e) {
+            showAlert("Σφάλμα στο Google Vision API: " + e.getMessage());
+        }
+
+        return "";  // αν δεν βρει ή error
+    }
+
+
 
     @FXML
     private void uploadImage() {
@@ -245,15 +324,14 @@ public class MainController {
                     GeoLocation loc = gpsDir.getGeoLocation();
                     selectedLat = loc.getLatitude();
                     selectedLng = loc.getLongitude();
-                    allowUserToPickLocation = false;  // Απενεργοποιούμε την επιλογή τοποθεσίας
+                    allowUserToPickLocation = false;
 
-                    // Προσθήκη marker με βάση τις συντεταγμένες GPS της εικόνας
                     webEngine.executeScript(String.format("""
                     L.marker([%f, %f]).addTo(map)
                         .bindPopup("Image GPS Location").openPopup();
                 """, selectedLat, selectedLng));
                 } else {
-                    allowUserToPickLocation = true;  // Ενεργοποιούμε την επιλογή τοποθεσίας
+                    allowUserToPickLocation = true;
                     showAlert("Η εικόνα δεν περιέχει GPS. Διάλεξε σημείο στον χάρτη.");
                 }
 
@@ -261,25 +339,28 @@ public class MainController {
                 showAlert("Σφάλμα ανάγνωσης metadata: " + e.getMessage());
             }
 
-            // Εμφάνιση της εικόνας στο UI
             Image img = new Image(file.toURI().toString());
-            VBox container = createImageBox(img);
+
+            // Εδώ κάνουμε αναγνώριση landmark
+            String landmarkComment = detectLandmark(file);
+
+            VBox container = createImageBox(img, landmarkComment);
             imageContainer.getChildren().add(container);
         }
     }
 
 
 
-    private VBox createImageBox(Image image) {
+
+    private VBox createImageBox(Image image, String initialComment) {
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(100);
         imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
 
-
         imageView.setOnMouseClicked(e -> showImageInPopOut(imageView.getImage()));
 
-        TextField commentField = new TextField();
+        TextField commentField = new TextField(initialComment);
         commentField.setPromptText("Add comment...");
 
         Button deleteBtn = new Button("Delete");
@@ -301,7 +382,6 @@ public class MainController {
         MenuItem sepiaItem = new MenuItem("Sepia Tone");
         sepiaItem.setOnAction(e -> imageView.setImage(sepiaTone(imageView.getImage())));
 
-
         MenuItem resetItem = new MenuItem("Remove Filter");
         resetItem.setOnAction(e -> {
             imageView.setImage(originalImage[0]);
@@ -319,6 +399,7 @@ public class MainController {
 
         return imageBox;
     }
+
 
     private void showImageInPopOut(Image image) {
         Stage stage = new Stage();
@@ -648,7 +729,7 @@ public class MainController {
                 double lng = rs.getDouble("longitude");
 
                 // Δημιουργούμε VBox με εικόνα και σχόλιο (παραλλαγή της δικής σου createImageBox)
-                VBox imageBox = createImageBox(fxImage);
+                VBox imageBox = createImageBox(fxImage,"1");
                 // Βάζουμε το comment μέσα στο TextField (δεδομένου ότι το createImageBox έχει TextField στη θέση 1)
                 TextField commentField = (TextField) imageBox.getChildren().get(1);
                 commentField.setText(comment);
