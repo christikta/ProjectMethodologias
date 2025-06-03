@@ -259,7 +259,7 @@ public class MainController {
         }
         """.formatted(base64Image);
 
-            URL url = new URL("https://vision.googleapis.com/v1/images:annotate?key=" + "AIzaSyAHYLwd4j98pDHmeZacyKoUDjV5uPKu5A8");
+            URL url = new URL("https://vision.googleapis.com/v1/images:annotate?key=" + "ApiKey");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
