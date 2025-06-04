@@ -49,6 +49,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 
+
+
 public class MainController {
 
 
@@ -60,31 +62,68 @@ public class MainController {
     @FXML private Button confirmPlaceButton;
     @FXML private TextField placeNameField;
     @FXML private HBox imageContainer;
-    @FXML private Pane albumPane;
+    //@FXML private Pane albumPane;
 
     @FXML  private WebEngine webEngine;
     @FXML private double selectedLat;
     @FXML private double selectedLng;
 
-
-
-
+    @FXML
+    private Pane albumPane;
+    @FXML
+    private Label albumTitleLabel;
+    @FXML private MenuButton createAlbumMenu;
+    @FXML private Menu addMenu;
+    @FXML private TextField newAlbumField;
 
     @FXML private Button logoutButton;
 
-    //new
 
-        @FXML
-        private void handleNewAlbum(ActionEvent event) {
-            System.out.println("New Album clicked");
-            // Add logic to open a form or do something
-        }
+    //new pane
 
-        @FXML
-        private void handleImportAlbum(ActionEvent event) {
-            System.out.println("Import Album clicked");
-            // Add logic to import albums
-        }
+
+    @FXML
+    private void handleNewAlbum() {
+        albumTitleLabel.setText("New Album");
+        albumPane.setVisible(true);
+    }
+
+    @FXML
+    private void handleImportAlbum() {
+        albumTitleLabel.setText("Import Album");
+        albumPane.setVisible(true);
+    }
+
+
+    @FXML
+    private void closeAlbumWindow() {
+        albumPane.setVisible(false);
+    }
+
+
+//new album
+@FXML
+private void addNewAlbum() {
+    String albumName = newAlbumField.getText().trim();
+
+    if (!albumName.isEmpty()) {
+        MenuItem newItem = new MenuItem(albumName);
+
+        // Set click behavior for this menu item
+        newItem.setOnAction(e -> {
+            albumTitleLabel.setText(albumName);
+            albumPane.setVisible(true);
+        });
+
+        // Insert the new album menu item before the CustomMenuItem (the TextField input)
+        int insertIndex = createAlbumMenu.getItems().size() - 1;
+        createAlbumMenu.getItems().add(insertIndex, newItem);
+
+        newAlbumField.clear();
+    }
+}
+
+
 
 
 
@@ -101,20 +140,31 @@ public class MainController {
         webEngine = mapView.getEngine();
         webEngine.load(getClass().getResource("/map.html").toExternalForm());
 
-        // Προσθήκη Listener για να βεβαιωθούμε ότι το map έχει φορτωθεί
+        // Setup map click listener
         webEngine.getLoadWorker().stateProperty().addListener((obs, old, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("javaConnector", this); // Συνδέει την Java μέθοδο με την JS
+                window.setMember("javaConnector", this);
                 webEngine.executeScript("""
                 map.on('click', function(e) {
                     const lat = e.latlng.lat.toFixed(5);
                     const lng = e.latlng.lng.toFixed(5);
-                    javaConnector.onMapClicked(lat, lng); // Καλεί τη μέθοδο στην Java
+                    javaConnector.onMapClicked(lat, lng);
                 });
             """);
             }
         });
+
+        // Add click handlers for existing fixed MenuItems (optional, to show pane on click)
+        // This assumes your FXML fixed items: newAlbumItem, importAlbumItem
+        for (MenuItem item : createAlbumMenu.getItems()) {
+            if (!(item instanceof CustomMenuItem)) { // skip the input field
+                item.setOnAction(e -> {
+                    albumTitleLabel.setText(item.getText());
+                    albumPane.setVisible(true);
+                });
+            }
+        }
     }
 
     @FXML
@@ -219,19 +269,6 @@ public class MainController {
 
 
     @FXML private Label usernameLabel;  // Στο main.fxml θα πρέπει να υπάρχει Label με fx:id="usernameLabel"
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -350,7 +387,7 @@ public class MainController {
 
         HBox buttons = new HBox(5, deleteBtn, editBtn);
         imageBox.getChildren().addAll(imageView, commentField, buttons);
-        imageBox.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: #f4f4f4;");
+        imageBox.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: #212121; -fx-background-radius: 10; -fx-border-radius: 10;");
         imageBox.setPrefWidth(120);
 
         return imageBox;
@@ -440,15 +477,8 @@ public class MainController {
         return sepia;
     }
 
-    @FXML
-    private void openCreateAlbumWindow() {
-        albumPane.setVisible(true);
-    }
 
-    @FXML
-    private void closeAlbumWindow() {
-        albumPane.setVisible(false);
-    }
+
 
 
     private void showAlert(String msg) {
@@ -646,12 +676,7 @@ public class MainController {
     }
 
 
-    //new too
-    public void handleImportAlbum(javafx.event.ActionEvent actionEvent) {
-    }
 
-    public void handleNewAlbum(javafx.event.ActionEvent actionEvent) {
-    }
 
     //new
     public void handleAddMenuShowing(Event event) {

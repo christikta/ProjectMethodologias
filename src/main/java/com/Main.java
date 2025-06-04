@@ -1,5 +1,6 @@
 package com;
 
+import com.sun.javafx.stage.EmbeddedWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,6 +17,7 @@ public class Main extends Application {
         // Φορτώνουμε το FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainView.fxml"));
         Parent root = loader.load();
+
 
         // Ορισμός του παραθύρου
         primaryStage.setTitle("Smart Travel Journal");

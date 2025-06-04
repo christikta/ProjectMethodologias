@@ -11,6 +11,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
+<?import javafx.scene.control.CustomMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.CustomMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+
 
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
@@ -38,20 +46,26 @@
             <TextField fx:id="placeNameField" promptText="Enter a name for the place" visible="false" />
 
             <Button fx:id="uploadButton" onAction="#uploadImage" prefHeight="60.0" prefWidth="267.0" style="-fx-font-family: Georgia, serif;" styleClass="button" text="Upload Images" translateY="-25.0" />
+
             <!-- new dropmenu -->
             <MenuButton fx:id="createAlbumMenu"  prefHeight="60.0" prefWidth="267.0"
-                        styleClass="button"
-                        style="-fx-font-family: Georgia, serif;"
-                        text="Create Albums" translateY="-25.0">
+                         styleClass="button"
+                         style="-fx-font-family: Georgia, serif;"
+                         text="Create Albums" translateY="-25.0">
                <items>
-                  <MenuItem text="New Album" onAction="#handleNewAlbum"/>
-                  <MenuItem text="Import Album" onAction="#handleImportAlbum"/>
+                  <MenuItem fx:id="newAlbumItem" text="New Album" onAction="#handleNewAlbum"/>
+                  <MenuItem fx:id="importAlbumItem" text="Import Album" onAction="#handleImportAlbum"/>
 
-                  <Menu text="+ Add Menu" fx:id="addMenu" onShowing="#handleAddMenuShowing"/>
-
-                  <!-- New menus added dynamically here -->
+                  <CustomMenuItem hideOnClick="false">
+                     <content>
+                        <HBox>
+                           <TextField fx:id="newAlbumField" promptText="New album name" onAction="#addNewAlbum" />
+                        </HBox>
+                     </content>
+                  </CustomMenuItem>
                </items>
             </MenuButton>
+
 
 
 
@@ -64,12 +78,22 @@
       </VBox>
 
       <!-- Άλμπουμ -->
-      <Pane fx:id="albumPane" layoutX="391.0" layoutY="600.0" prefHeight="400.0" prefWidth="1300.0" style="-fx-background-color: lightgray; -fx-border-color: black;" visible="false">
+      <Pane fx:id="albumPane"
+            layoutX="300.0"
+            layoutY="550.0"
+            prefWidth="1000.0"
+            prefHeight="400.0"
+            styleClass="album-pane"
+            visible="false">
          <children>
-            <Button layoutX="1240.0" layoutY="10.0" onAction="#closeAlbumWindow" styleClass="button2" text="X" />
-            <HBox fx:id="imageContainer" layoutX="20.0" layoutY="50.0" prefHeight="0.0" prefWidth="0.0" spacing="20" styleClass="button2" />
+            <Label fx:id="albumTitleLabel" layoutX="30" layoutY="30" text="Album Settings" styleClass="album-title"/>
+            <Label layoutX="30" layoutY="30" styleClass="album-title"/>
+            <Button layoutX="950" layoutY="20" text="X" onAction="#closeAlbumWindow"/>
+
+            <HBox fx:id="imageContainer" layoutX="20.0" layoutY="50.0" prefHeight="0.0" prefWidth="0.0" spacing="20" styleClass="button3" />
          </children>
       </Pane>
+
 
       <Button id="save" fx:id="savePlaceButton" layoutX="1088.0" layoutY="471.0" onAction="#onSavePlace" prefHeight="26.0" prefWidth="98.0" styleClass="button1" text="Save Location" />
 
